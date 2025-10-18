@@ -37,6 +37,10 @@ services:
       db:
         condition: service_healthy
     environment:
+      # Domain/URL Configuration (for EasyPanel deployment)
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+      APP_URL: ${APP_URL:-http://localhost}
+      
       # Database connection settings
       DB_HOST: ${DB_HOST}
       DB_DATABASE: ${DB_DATABASE}
@@ -53,9 +57,11 @@ services:
       META_API_TOKEN: ${META_API_TOKEN:-}
       META_PHONE_NUMBER_ID: ${META_PHONE_NUMBER_ID:-}
       META_BUSINESS_ID: ${META_BUSINESS_ID:-}
+      META_WEBHOOK_TOKEN: ${META_WEBHOOK_TOKEN:-}
       
       # OpenAI/IA settings (if applicable)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
     volumes:
       # Mount application code (for development, can be removed for production)
       # - ./:/var/www/html

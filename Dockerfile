@@ -54,8 +54,28 @@ RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
     && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini \
     && echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini
 
+# Copy and set up the entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Environment variables for domain configuration
+# These can be overridden at runtime via docker-compose or EasyPanel
+ENV APP_DOMAIN="" \
+    APP_URL="" \
+    DB_HOST="db" \
+    DB_DATABASE="chatcenter" \
+    DB_USER="chatcenter_user" \
+    DB_PASSWORD="" \
+    DB_PORT="3306" \
+    APP_ENV="production" \
+    APP_DEBUG="false" \
+    API_KEY=""
+
 # Expose port 80
 EXPOSE 80
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Start Apache
 CMD ["apache2-foreground"]

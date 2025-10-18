@@ -10,13 +10,17 @@ class Connection{
 
         static public function infoDatabase(){
 
-                // Use environment variables for Docker deployment
-                // Fallback to empty strings if not set (for backwards compatibility)
-                $infoDB = array(
-                        "database" => getenv('DB_DATABASE') ?: "",
-                        "user" => getenv('DB_USER') ?: "",
-                        "pass" => getenv('DB_PASSWORD') ?: ""
+                // Load configuration from environment variables
+                // If config.env.php exists (created by docker-entrypoint.sh), use it
+                $configFile = __DIR__ . '/../../config.env.php';
+                if (file_exists($configFile)) {
+                        require_once $configFile;
+                }
 
+                $infoDB = array(
+                        "database" => getenv('DB_DATABASE') ?: (defined('DB_DATABASE') ? DB_DATABASE : ""),
+                        "user" => getenv('DB_USER') ?: (defined('DB_USER') ? DB_USER : ""),
+                        "pass" => getenv('DB_PASSWORD') ?: (defined('DB_PASSWORD') ? DB_PASSWORD : "")
                 );
 
                 return $infoDB;
@@ -29,9 +33,15 @@ class Connection{
 
         static public function apikey(){
 
-                // Use environment variable for Docker deployment
-                // Fallback to default key if not set (for backwards compatibility)
-                return getenv('API_KEY') ?: "sdfgsdgdsfgh4356e45rdfhdfgh5rdfhfgjrtrer";
+                // Load configuration from environment variables
+                $configFile = __DIR__ . '/../../config.env.php';
+                if (file_exists($configFile)) {
+                        require_once $configFile;
+                }
+
+                $apiKey = getenv('API_KEY') ?: (defined('API_KEY') ? API_KEY : "sdfgsdgdsfgh4356e45rdfhdfgh5rdfhfgjrtrer");
+                
+                return $apiKey;
 
         }
 
@@ -56,13 +66,12 @@ class Connection{
 
                 try{
 
-                        // Use DB_HOST environment variable for Docker deployment
-                        // Fallback to localhost if not set
-                        $host = getenv('DB_HOST') ?: 'localhost';
-                        $port = getenv('DB_PORT') ?: '3306';
+                        // Get database host from environment variables
+                        $dbHost = getenv('DB_HOST') ?: (defined('DB_HOST') ? DB_HOST : 'localhost');
+                        $dbPort = getenv('DB_PORT') ?: (defined('DB_PORT') ? DB_PORT : '3306');
 
                         $link = new PDO(
-                                "mysql:host=".$host.";port=".$port.";dbname=".Connection::infoDatabase()["database"],
+                                "mysql:host=".$dbHost.";port=".$dbPort.";dbname=".Connection::infoDatabase()["database"],
                                 Connection::infoDatabase()["user"], 
                                 Connection::infoDatabase()["pass"]
                         );
