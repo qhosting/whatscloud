@@ -36,6 +36,9 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html/
 
+# Copy Apache configuration
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
 # Install PHP dependencies if composer.json exists
 RUN if [ -f "composer.json" ]; then composer install --no-dev --optimize-autoloader; fi
 RUN if [ -f "api/composer.json" ]; then cd api && composer install --no-dev --optimize-autoloader; fi
@@ -43,10 +46,9 @@ RUN if [ -f "cms/extensions/composer.json" ]; then cd cms/extensions && composer
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
-
-# Configure Apache to use /var/www/html as DocumentRoot
-RUN sed -i 's|/var/www/html|/var/www/html|g' /etc/apache2/sites-available/000-default.conf
+    && chmod -R 755 /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \;
 
 # Configure PHP settings for production
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \

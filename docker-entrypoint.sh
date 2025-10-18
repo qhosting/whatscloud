@@ -45,12 +45,15 @@ APACHE_CONF="/etc/apache2/sites-available/000-default.conf"
 
 if [ -f "$APACHE_CONF" ]; then
     # Check if ServerName already exists in the config
-    if grep -q "ServerName" "$APACHE_CONF"; then
-        # Replace existing ServerName
-        sed -i "s/ServerName .*/ServerName $DOMAIN/" "$APACHE_CONF"
-    else
-        # Add ServerName after <VirtualHost *:80>
+    if grep -q "ServerName localhost" "$APACHE_CONF"; then
+        # Replace the placeholder ServerName with the actual domain
+        sed -i "s/ServerName localhost/ServerName $DOMAIN/" "$APACHE_CONF"
+    elif ! grep -q "ServerName" "$APACHE_CONF"; then
+        # Add ServerName after <VirtualHost *:80> if it doesn't exist
         sed -i "/<VirtualHost \*:80>/a \    ServerName $DOMAIN" "$APACHE_CONF"
+    else
+        # ServerName exists but is not localhost - update it
+        sed -i "s/^\s*ServerName .*/    ServerName $DOMAIN/" "$APACHE_CONF"
     fi
     echo -e "${GREEN}✓ Apache ServerName set to: $DOMAIN${NC}"
 else
