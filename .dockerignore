@@ -11,9 +11,15 @@ docker-compose.yml
 .env.local
 .env.*.local
 
+# Important: Do NOT ignore these files - they are needed in the container
+!apache-config.conf
+!docker-entrypoint.sh
+!index.php
+
 # Documentation
 README.md
 *.md
+!DOCKER_FIX_NOTES.md
 docs/
 documentation/
 
