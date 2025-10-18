@@ -1,0 +1,71 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker files (keep compose but ignore local overrides)
+docker-compose.override.yml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.cache
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.sql.gz
+backup*.sql
+
+# Vendor dependencies (if committed, remove this)
+# vendor/
+# node_modules/
+
+# Upload directories (if you want to ignore user uploads)
+cms/views/assets/uploads/*
+!cms/views/assets/uploads/.gitkeep
+
+# Database dumps
+*.sql
+!chatcenter.sql
+
+# Generated files
+*.pdf
+
+# Session files
+sessions/
+*.sess
+
+# Cache
+cache/
+*.cache
+
+# Composer
+composer.phar
+composer.lock
+
+# PHP
+.phpunit.result.cache
+phpunit.xml

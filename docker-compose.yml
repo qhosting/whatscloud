@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: chatcenter_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # Persistent volume for database data
+      - db_data:/var/lib/mysql
+      # Initialize database with SQL file (optional)
+      - ./chatcenter.sql:/docker-entrypoint-initdb.d/chatcenter.sql
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - chatcenter_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PHP Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chatcenter_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database connection settings
+      DB_HOST: ${DB_HOST}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: ${DB_PORT:-3306}
+      
+      # Application settings
+      API_KEY: ${API_KEY}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      
+      # Meta/WhatsApp API settings (if applicable)
+      META_API_TOKEN: ${META_API_TOKEN:-}
+      META_PHONE_NUMBER_ID: ${META_PHONE_NUMBER_ID:-}
+      META_BUSINESS_ID: ${META_BUSINESS_ID:-}
+      
+      # OpenAI/IA settings (if applicable)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      # Mount application code (for development, can be removed for production)
+      # - ./:/var/www/html
+      # Persistent volumes for uploads and user data
+      - app_uploads:/var/www/html/cms/views/assets/uploads
+      - app_logs:/var/www/html/logs
+    ports:
+      - "${APP_PORT:-80}:80"
+    networks:
+      - chatcenter_network
+
+  # phpMyAdmin (optional, for database management)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: chatcenter_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - chatcenter_network
+    profiles:
+      - tools  # Only start with --profile tools
+
+# Networks
+networks:
+  chatcenter_network:
+    driver: bridge
+
+# Volumes for data persistence
+volumes:
+  db_data:
+    driver: local
+  app_uploads:
+    driver: local
+  app_logs:
+    driver: local

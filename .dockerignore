@@ -1,0 +1,72 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+*.md
+docs/
+documentation/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.cache
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Test files
+tests/
+test/
+*.test.php
+phpunit.xml
+
+# Development dependencies
+node_modules/
+vendor/
+
+# Database files (will be imported via docker-compose)
+*.sql
+
+# Postman collections
+*.postman_collection.json
+
+# Large media files (if any)
+*.mp4
+*.avi
+*.mov
+*.zip
+*.tar.gz
