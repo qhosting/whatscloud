@@ -62,12 +62,10 @@ nano .env  # or use your preferred editor
 - `META_API_TOKEN` - Your WhatsApp Business API token
 - Other Meta/WhatsApp credentials
 
-### 3. Start the Application (Development)
-
-This command starts the application in development mode with live code reloading. It uses both `docker-compose.yml` and `docker-compose.override.yml`.
+### 3. Start the Application
 
 ```bash
-# Build and start all services for development
+# Build and start all services
 docker-compose up -d --build
 
 # View logs
@@ -77,7 +75,7 @@ docker-compose logs -f
 docker-compose ps
 ```
 
-For production deployment, see the [Production Deployment](#production-deployment) section.
+This single set of commands works for both development and production. See "Deployment Workflows" for more details.
 
 ### 4. Access the Application
 
@@ -127,14 +125,14 @@ OPENAI_MODEL=gpt-3.5-turbo
 
 ## 🐳 Deployment Workflows
 
-This project now uses multiple Docker Compose files for different environments:
-- `docker-compose.yml`: Base configuration for all environments.
-- `docker-compose.override.yml`: Development-specific settings (e.g., volume mounts for live reloading). This is loaded automatically by default.
-- `docker-compose.prod.yml`: Production-ready configuration.
+This project uses a standard Docker Compose setup that is optimized for both development and production.
+
+- `docker-compose.yml`: Contains the base configuration for the application, suitable for production.
+- `docker-compose.override.yml`: Contains development-only settings, such as mounting the local code for live reloading. This file is **not meant for production** and should not be copied to your production server.
 
 ### Development Environment
 
-To run the application locally for development, simply use the standard `docker-compose` commands. This will automatically include the `override` file.
+When you run `docker-compose up` on your local machine, Docker Compose automatically merges `docker-compose.yml` and `docker-compose.override.yml`, giving you a development-ready environment with your code mounted.
 
 ```bash
 # Start in development mode (with live reload)
@@ -144,15 +142,11 @@ docker-compose up -d --build
 docker-compose --profile tools up -d
 ```
 
-### Rebuild After Changes
+### Production Environment
 
-```bash
-# Rebuild the application container
-docker-compose up -d --build
+For production, you simply deploy the `docker-compose.yml` file without the `override` file. This ensures that the application runs using the code built into the Docker image, which is faster and more secure.
 
-# Rebuild specific service
-docker-compose up -d --build app
-```
+See the [Production Deployment](#production-deployment) section for more details.
 
 ### Stop Services
 
@@ -198,14 +192,6 @@ docker-compose exec db mysqldump -u root -p chatcenter > backup_$(date +%Y%m%d).
 docker-compose exec -T db mysql -u root -p chatcenter < backup_20251018.sql
 ```
 
-### Data Persistence
-
-The database data is stored in a Docker volume named `chatcenter_db_data`, which persists across container restarts and removals. To completely remove the data:
-
-```bash
-docker-compose down -v  # ⚠️ WARNING: Deletes all data!
-```
-
 ## 🔍 Troubleshooting
 
 ### View Logs
@@ -219,33 +205,6 @@ docker-compose logs -f app
 docker-compose logs -f db
 ```
 
-### Container Status
-
-```bash
-# Check running containers
-docker-compose ps
-
-# Check resource usage
-docker stats
-```
-
-### Database Connection Issues
-
-1. **Check if database is ready:**
-```bash
-docker-compose exec db mysqladmin ping -h localhost -p
-```
-
-2. **Verify environment variables:**
-```bash
-docker-compose exec app env | grep DB_
-```
-
-3. **Test connection from app container:**
-```bash
-docker-compose exec app php -r "echo 'DB: ' . getenv('DB_DATABASE') . PHP_EOL;"
-```
-
 ### Reset Everything
 
 ```bash
@@ -254,50 +213,37 @@ docker-compose down -v
 
 # Remove images
 docker-compose down --rmi all
-
-# Start fresh
-docker-compose up -d --build
-```
-
-### Permission Issues
-
-If you encounter permission issues with uploads or logs:
-
-```bash
-docker-compose exec app chown -R www-data:www-data /var/www/html
-docker-compose exec app chmod -R 755 /var/w
-ww/html
 ```
 
 ## 🔒 Production Deployment
 
-For production, it is crucial to use the production-specific configuration file, which ensures that the code is built into the image and not mounted from a local directory.
+Deploying to production is straightforward. Ensure that only the `docker-compose.yml` file is on your server, along with your `.env` file. **Do not copy `docker-compose.override.yml` to production.**
 
 ### Running in Production
 
 ```bash
-# Build and start the services using the production configuration
-docker-compose -f docker-compose.prod.yml up -d --build
+# Pull the latest changes from your repository
+git pull
+
+# Build and start the services
+docker-compose up -d --build
 
 # Stop the services
-docker-compose -f docker-compose.prod.yml down
+docker-compose down
 ```
 
 ### Security Checklist
 
-- [ ] Change all default passwords and API keys
-- [ ] Set `APP_DEBUG=false` in `.env`
-- [ ] Use strong, unique passwords (16+ characters)
-- [ ] Enable HTTPS with SSL/TLS certificates
-- [ ] Disable phpMyAdmin or restrict access
-- [ ] Configure firewall rules
-- [ ] Regular database backups
-- [ ] Keep Docker images updated
-- [ ] Monitor logs for suspicious activity
+- [ ] Ensure `docker-compose.override.yml` is not on the production server.
+- [ ] Change all default passwords and API keys in `.env`.
+- [ ] Set `APP_DEBUG=false` in `.env`.
+- [ ] Enable HTTPS with a reverse proxy.
+- [ ] Disable phpMyAdmin or restrict access.
+- [ ] Configure firewall rules and regular backups.
 
 ### Using HTTPS with Reverse Proxy
 
-It's recommended to use a reverse proxy like **Nginx** or **Traefik** for HTTPS:
+It's recommended to use a reverse proxy like **Nginx** or **Traefik** for HTTPS.
 
 **Example nginx configuration:**
 ```nginx
@@ -318,94 +264,15 @@ server {
 }
 ```
 
-### Automated Backups
-
-Create a backup script (`backup.sh`):
-
-```bash
-#!/bin/bash
-BACKUP_DIR="/backups"
-DATE=$(date +%Y%m%d_%H%M%S)
-FILENAME="chatcenter_backup_${DATE}.sql"
-
-docker-compose exec -T db mysqldump -u root -p${DB_ROOT_PASSWORD} chatcenter > "${BACKUP_DIR}/${FILENAME}"
-
-# Keep only last 7 days of backups
-find ${BACKUP_DIR} -name "chatcenter_backup_*.sql" -mtime +7 -delete
-```
-
-Add to crontab:
-```bash
-0 2 * * * /path/to/backup.sh  # Daily backup at 2 AM
-```
-
 ## 🌐 EasyPanel Deployment
 
-EasyPanel provides a simple interface for deploying Docker applications.
+When deploying with EasyPanel or a similar service:
+1. Connect your GitHub repository.
+2. EasyPanel will detect `docker-compose.yml`.
+3. Add your environment variables from your `.env` file into the EasyPanel dashboard.
+4. Deploy.
 
-### Steps for EasyPanel:
-
-1. **Push to GitHub:**
-```bash
-git remote add origin https://github.com/yourusername/whatscloud.git
-git push -u origin main
-```
-
-2. **In EasyPanel Dashboard:**
-   - Create a new project: "whatscloud"
-   - Choose "Docker Compose" deployment
-   - Connect your GitHub repository
-   - EasyPanel will automatically detect `docker-compose.yml`
-
-3. **Configure Environment Variables:**
-   - Go to project settings
-   - Add all variables from `.env.example`
-   - Save and deploy
-
-4. **Set up Domain:**
-   - Add your domain in EasyPanel
-   - Configure SSL certificate (automatic with Let's Encrypt)
-   - Point your domain's DNS to EasyPanel server
-
-5. **Deploy:**
-   - Click "Deploy" button
-   - Monitor deployment logs
-   - Access your application at your domain
-
-### EasyPanel-specific Notes:
-
-- EasyPanel handles SSL certificates automatically
-- No need to expose ports manually (handled by EasyPanel)
-- Use EasyPanel's built-in monitoring tools
-- Database backups can be configured in EasyPanel settings
-
-## 📊 Monitoring
-
-### Check Application Health
-
-```bash
-# Check if services are running
-docker-compose ps
-
-# View resource usage
-docker stats
-
-# Check disk usage
-docker system df
-```
-
-### Application Logs
-
-```bash
-# Real-time logs
-docker-compose logs -f app
-
-# Last 100 lines
-docker-compose logs --tail=100 app
-
-# Logs since timestamp
-docker-compose logs --since 2025-10-18T00:00:00 app
-```
+The service will use the `docker-compose.yml` file, which is suitable for production.
 
 ## 🆘 Support
 
@@ -413,7 +280,6 @@ For issues, questions, or contributions:
 
 - **GitHub Issues:** https://github.com/yourusername/whatscloud/issues
 - **Documentation:** Check the `api/Documentación-APIRESTFul.pdf` file
-- **Analysis Report:** See `chatcenter_analysis.pdf` for system architecture
 
 ## 📝 License
 

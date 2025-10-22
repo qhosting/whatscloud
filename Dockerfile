@@ -45,8 +45,8 @@ RUN if [ -f "cms/extensions/composer.json" ]; then cd cms/extensions && composer
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Configure Apache to use /var/www/html as DocumentRoot
-RUN sed -i 's|/var/www/html|/var/www/html|g' /etc/apache2/sites-available/000-default.conf
+# Configure Apache to use /var/www/html/cms as DocumentRoot
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/cms|g' /etc/apache2/sites-available/000-default.conf
 
 # Configure PHP settings for production
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
