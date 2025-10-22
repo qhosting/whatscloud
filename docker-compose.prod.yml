@@ -40,29 +40,31 @@ services:
       # Domain/URL Configuration (for EasyPanel deployment)
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
       APP_URL: ${APP_URL:-http://localhost}
-      
+
       # Database connection settings
       DB_HOST: ${DB_HOST}
       DB_DATABASE: ${DB_DATABASE}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_PORT: ${DB_PORT:-3306}
-      
+
       # Application settings
       API_KEY: ${API_KEY}
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
-      
+
       # Meta/WhatsApp API settings (if applicable)
       META_API_TOKEN: ${META_API_TOKEN:-}
       META_PHONE_NUMBER_ID: ${META_PHONE_NUMBER_ID:-}
       META_BUSINESS_ID: ${META_BUSINESS_ID:-}
       META_WEBHOOK_TOKEN: ${META_WEBHOOK_TOKEN:-}
-      
+
       # OpenAI/IA settings (if applicable)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
     volumes:
+      # Mount application code (for development, can be removed for production)
+      # - ./:/var/www/html
       # Persistent volumes for uploads and user data
       - app_uploads:/var/www/html/cms/views/assets/uploads
       - app_logs:/var/www/html/logs

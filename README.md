@@ -7,7 +7,7 @@ ChatCenter is a comprehensive chatbot management system integrated with WhatsApp
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-- [Deployment Options](#deployment-options)
+- [Deployment Workflows](#deployment-workflows)
 - [Database Management](#database-management)
 - [Troubleshooting](#troubleshooting)
 - [Production Deployment](#production-deployment)
@@ -62,11 +62,13 @@ nano .env  # or use your preferred editor
 - `META_API_TOKEN` - Your WhatsApp Business API token
 - Other Meta/WhatsApp credentials
 
-### 3. Start the Application
+### 3. Start the Application (Development)
+
+This command starts the application in development mode with live code reloading. It uses both `docker-compose.yml` and `docker-compose.override.yml`.
 
 ```bash
-# Build and start all services
-docker-compose up -d
+# Build and start all services for development
+docker-compose up -d --build
 
 # View logs
 docker-compose logs -f
@@ -74,6 +76,8 @@ docker-compose logs -f
 # Check status
 docker-compose ps
 ```
+
+For production deployment, see the [Production Deployment](#production-deployment) section.
 
 ### 4. Access the Application
 
@@ -121,19 +125,22 @@ OPENAI_API_KEY=your_openai_key
 OPENAI_MODEL=gpt-3.5-turbo
 ```
 
-## 🐳 Deployment Options
+## 🐳 Deployment Workflows
 
-### Standard Deployment
+This project now uses multiple Docker Compose files for different environments:
+- `docker-compose.yml`: Base configuration for all environments.
+- `docker-compose.override.yml`: Development-specific settings (e.g., volume mounts for live reloading). This is loaded automatically by default.
+- `docker-compose.prod.yml`: Production-ready configuration.
+
+### Development Environment
+
+To run the application locally for development, simply use the standard `docker-compose` commands. This will automatically include the `override` file.
 
 ```bash
-# Start application and database
-docker-compose up -d
-```
+# Start in development mode (with live reload)
+docker-compose up -d --build
 
-### Development Mode with phpMyAdmin
-
-```bash
-# Include phpMyAdmin for database management
+# To include phpMyAdmin:
 docker-compose --profile tools up -d
 ```
 
@@ -258,10 +265,23 @@ If you encounter permission issues with uploads or logs:
 
 ```bash
 docker-compose exec app chown -R www-data:www-data /var/www/html
-docker-compose exec app chmod -R 755 /var/www/html
+docker-compose exec app chmod -R 755 /var/w
+ww/html
 ```
 
 ## 🔒 Production Deployment
+
+For production, it is crucial to use the production-specific configuration file, which ensures that the code is built into the image and not mounted from a local directory.
+
+### Running in Production
+
+```bash
+# Build and start the services using the production configuration
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Stop the services
+docker-compose -f docker-compose.prod.yml down
+```
 
 ### Security Checklist
 
