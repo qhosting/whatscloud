@@ -45,8 +45,11 @@ RUN if [ -f "cms/extensions/composer.json" ]; then cd cms/extensions && composer
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Configure Apache to use /var/www/html/cms as DocumentRoot
-RUN sed -i 's|/var/www/html|/var/www/html/cms|g' /etc/apache2/sites-available/000-default.conf
+# Copy custom Apache configuration
+COPY apache-chatcenter.conf /etc/apache2/sites-available/apache-chatcenter.conf
+
+# Disable default site and enable the new site
+RUN a2dissite 000-default.conf && a2ensite apache-chatcenter.conf
 
 # Configure PHP settings for production
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
