@@ -62,6 +62,15 @@ services:
       # OpenAI/IA settings (if applicable)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
+
+      # Installation Autofill
+      INSTALL_ADMIN_EMAIL: ${INSTALL_ADMIN_EMAIL:-}
+      INSTALL_ADMIN_PASSWORD: ${INSTALL_ADMIN_PASSWORD:-}
+      INSTALL_TITLE_ADMIN: ${INSTALL_TITLE_ADMIN:-}
+      INSTALL_SYMBOL_ADMIN: ${INSTALL_SYMBOL_ADMIN:-}
+      INSTALL_FONT_ADMIN: ${INSTALL_FONT_ADMIN:-}
+      INSTALL_COLOR_ADMIN: ${INSTALL_COLOR_ADMIN:-}
+      INSTALL_BACK_ADMIN: ${INSTALL_BACK_ADMIN:-}
     volumes:
       # Mount application code (for development, can be removed for production)
       # - ./:/var/www/html
