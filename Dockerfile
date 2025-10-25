@@ -72,7 +72,14 @@ ENV APP_DOMAIN="" \
     DB_PORT="3306" \
     APP_ENV="production" \
     APP_DEBUG="false" \
-    API_KEY=""
+    API_KEY="" \
+    INSTALL_ADMIN_EMAIL="" \
+    INSTALL_ADMIN_PASSWORD="" \
+    INSTALL_TITLE_ADMIN="" \
+    INSTALL_SYMBOL_ADMIN="" \
+    INSTALL_FONT_ADMIN="" \
+    INSTALL_COLOR_ADMIN="" \
+    INSTALL_BACK_ADMIN=""
 
 # Expose port 80
 EXPOSE 80

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*=============================================
 Iniciar variables de sesión
@@ -16,7 +16,7 @@ $routesArray = explode("/", $_SERVER["REQUEST_URI"]);
 array_shift($routesArray);
 
 foreach ($routesArray as $key => $value) {
-	
+
 	$routesArray[$key] = explode("?",$value)[0];
 }
 
@@ -30,15 +30,13 @@ $fields = array();
 
 $adminTable = CurlController::request($url,$method,$fields);
 
-// echo '<pre>$adminTable '; print_r($adminTable); echo '</pre>';
+if(isset($adminTable->status) && $adminTable->status == 200){
 
-if($adminTable->status == 404){
-
-	$admin = null;
+    $admin = $adminTable->results[0];
 
 }else{
 
-	$admin = $adminTable->results[0];
+    $admin = null;
 
 }
 
@@ -83,7 +81,7 @@ if($adminTable->status == 404){
 		===============================================-->
 
 		<style>
-			
+
 			/*=============================================
 			Típografía del dashboard
 			=============================================*/
@@ -91,7 +89,7 @@ if($adminTable->status == 404){
 			<?php if ($admin->font_admin != null):?>
 
 				body{
-					font-family: <?php echo str_replace("+"," ",explode("=",explode(":",explode("?",$admin->font_admin)[1])[0])[1]) ?>, sans-serif !important;	
+					font-family: <?php echo str_replace("+"," ",explode("=",explode(":",explode("?",$admin->font_admin)[1])[0])[1]) ?>, sans-serif !important;
 				}
 
 			<?php endif ?>
@@ -123,7 +121,7 @@ if($adminTable->status == 404){
 			}
 
 			.page-link {
-				color: <?php echo $admin->color_admin ?> !important;		
+				color: <?php echo $admin->color_admin ?> !important;
 			}
 
 		</style>
@@ -163,8 +161,8 @@ if($adminTable->status == 404){
     <link rel="stylesheet" href="/views/assets/plugins/select2/select2-bootstrap4.min.css">
     <!-- https://xdsoft.net/jqplugins/datetimepicker/ -->
     <link rel="stylesheet" href="/views/assets/plugins/datetimepicker/datetimepicker.min.css">
-    <!-- https://summernote.org -->	
-    <link rel="stylesheet" href="/views/assets/plugins/summernote/summernote-bs4.min.css"> 
+    <!-- https://summernote.org -->
+    <link rel="stylesheet" href="/views/assets/plugins/summernote/summernote-bs4.min.css">
     <link rel="stylesheet" href="/views/assets/plugins/summernote/summernote.min.css">
     <link rel="stylesheet" href="/views/assets/plugins/summernote/emoji.css">
     <!-- https://codemirror.net/ -->
@@ -182,25 +180,25 @@ if($adminTable->status == 404){
 	<!-- https://www.w3schools.com/bootstrap5/ -->
 	<script src="/views/assets/plugins/bootstrap5/bootstrap.bundle.min.js"></script>
 	<!-- https://sweetalert2.github.io/ -->
-	<script src="/views/assets/plugins/sweetalert/sweetalert.min.js"></script> 
+	<script src="/views/assets/plugins/sweetalert/sweetalert.min.js"></script>
 	<!-- https://www.jqueryscript.net/demo/Google-Inbox-Style-Linear-Preloader-Plugin-with-jQuery-CSS3/ -->
-	<script src="/views/assets/plugins/material-preloader/material-preloader.js"></script> 
+	<script src="/views/assets/plugins/material-preloader/material-preloader.js"></script>
 	<!-- https://codeseven.github.io/toastr/demo.html -->
 	<script src="/views/assets/plugins/toastr/toastr.min.js"></script>
 	<!-- http://josecebe.github.io/twbs-pagination/ -->
-	<script src="/views/assets/plugins/twbs-pagination/twbs-pagination.min.js"></script> 
+	<script src="/views/assets/plugins/twbs-pagination/twbs-pagination.min.js"></script>
 	<!-- https://momentjs.com/ -->
 	<script src="/views/assets/plugins/moment/moment.min.js"></script>
 	<script src="/views/assets/plugins/moment/moment-with-locales.min.js"></script>
 	<!--  https://www.daterangepicker.com/ -->
-	<script src="/views/assets/plugins/daterangepicker/daterangepicker.js"></script>	
+	<script src="/views/assets/plugins/daterangepicker/daterangepicker.js"></script>
 	<!-- https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/ -->
-	<script src="/views/assets/plugins/tags-input/tags-input.js"></script> 
+	<script src="/views/assets/plugins/tags-input/tags-input.js"></script>
 	<!-- https://select2.org/ -->
 	<script src="/views/assets/plugins/select2/select2.full.min.js"></script>
 	<!-- https://xdsoft.net/jqplugins/datetimepicker/ -->
 	<script src="/views/assets/plugins/datetimepicker/datetimepicker.full.min.js"></script>
-	<!-- https://summernote.org -->	
+	<!-- https://summernote.org -->
 	<script src="/views/assets/plugins/summernote/summernote.min.js"></script>
 	<script src="/views/assets/plugins/summernote/summernote-bs4.js"></script>
     <script src="/views/assets/plugins/summernote/summernote-code-beautify-plugin.js"></script>
@@ -226,7 +224,7 @@ if($adminTable->status == 404){
 </head>
 <body>
 
-	<?php 
+	<?php
 
 	if(!isset($_SESSION["admin"])){
 
@@ -250,7 +248,7 @@ if($adminTable->status == 404){
 		===============================================-->
 
 		<div class="d-flex backDashboard" id="wrapper">
-			
+
 			<!--=============================================
 			SIDEBAR
 			===============================================-->
@@ -258,7 +256,7 @@ if($adminTable->status == 404){
 			<?php include "modules/sidebar.php" ?>
 
 			<div id="page-content-wrapper">
-				
+
 				<!--=============================================
 				NAV
 				===============================================-->
@@ -287,26 +285,26 @@ if($adminTable->status == 404){
 							Agregamos páginas dinámicas y personalizadas
 							===========================================-->
 
-							<?php 
+							<?php
 
 								$url = "pages?linkTo=url_page&equalTo=".$routesArray[0];
 								$method = "GET";
 								$fields = array();
 
 								$page = CurlController::request($url,$method,$fields);
-								
+
 								if($page->status == 200 && $page->results[0]->type_page == "modules"){
 
 									include "pages/dynamic/dynamic.php";
-								
+
 								}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
 
 									include "pages/custom/".$routesArray[0]."/".$routesArray[0].".php";
-								
+
 								}else{
 
 									include "pages/404/404.php";
-								
+
 								}
 
 							?>
@@ -316,14 +314,14 @@ if($adminTable->status == 404){
 							<?php include "pages/404/404.php"; ?>
 
 						<?php endif ?>
-						
+
 					<?php endif ?>
 
 				<?php else: ?>
 
 
 					<!--=========================================
-				 	Validar permisos para super y admins
+					Validar permisos para super y admins
 					===========================================-->
 
 					<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $_SESSION["admin"]->rol_admin == "admin"): ?>
@@ -332,7 +330,7 @@ if($adminTable->status == 404){
 						Agregamos la página inicial
 						===========================================-->
 
-						<?php 
+						<?php
 
 							$url = "pages?linkTo=order_page&equalTo=1";
 							$method = "GET";
@@ -343,23 +341,23 @@ if($adminTable->status == 404){
 							if($page->status == 200 && $page->results[0]->type_page == "modules"){
 
 								include "pages/dynamic/dynamic.php";
-							
+
 							}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
 
 								include "pages/custom/".$page->results[0]->url_page."/".$page->results[0]->url_page.".php";
-							
+
 							}else{
 
 								include "pages/404/404.php";
-							
+
 							}
-						
+
 						?>
 
 					<?php else: ?>
 
 					<!--=========================================
-				 	Validar permisos para editores
+					Validar permisos para editores
 					===========================================-->
 
 						<?php if ($_SESSION["admin"]->rol_admin == "editor"): ?>
@@ -377,15 +375,15 @@ if($adminTable->status == 404){
 								if($page->status == 200 && $page->results[0]->type_page == "modules"){
 
 									include "pages/dynamic/dynamic.php";
-								
+
 								}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
 
 									include "pages/custom/".$page->results[0]->url_page."/".$page->results[0]->url_page.".php";
-								
+
 								}else{
 
 									include "pages/404/404.php";
-								
+
 								}
 
 							?>
@@ -400,22 +398,22 @@ if($adminTable->status == 404){
 
 		</div>
 
-		<?php 
+		<?php
 
 		/*=============================================
-    	Incluimos modal de perfiles
-    	=============================================*/
+	Incluimos modal de perfiles
+	=============================================*/
 
-    	include "modules/modals/profile.php"; 
+	include "modules/modals/profile.php";
 		require_once "controllers/admins.controller.php";
 		$update = new AdminsController();
 	    $update->updateAdmin();
 
 	    if($_SESSION["admin"]->rol_admin == "superadmin"){
 
-	    	/*=============================================
-	    	Incluimos modal de páginas
-	    	=============================================*/
+		/*=============================================
+		Incluimos modal de páginas
+		=============================================*/
 
 		    include "views/modules/modals/pages.php";
 
@@ -424,15 +422,15 @@ if($adminTable->status == 404){
 		    $managePage->managePage();
 
 		    /*=============================================
-	    	Incluimos modal de módulos
-	    	=============================================*/
+		Incluimos modal de módulos
+		=============================================*/
 
 		    include "views/modules/modals/modules.php";
 
 		    require_once "controllers/modules.controller.php";
 			$manageModule = new ModulesController();
 			$manageModule->manageModule();
-   
+
 		}
 
 		?>
@@ -447,12 +445,12 @@ if($adminTable->status == 404){
 	<script src="/views/assets/js/dynamic-forms/dynamic-forms.js"></script>
 	<script src="/views/assets/js/dynamic-tables/dynamic-tables.js"></script>
 	<script src="/views/assets/js/fms/fms.js"></script>
-	
-		
+
+
 	<?php endif ?>
 
 	<script src="/views/assets/js/forms/forms.js"></script>
-	
-	
+
+
 </body>
 </html>
